@@ -1,0 +1,3 @@
+source_path#D:/Program Files/Jenkins/workspace/CI DEMO/apk
+target_path#D:/apk
+pkg_prefix#com.chinasie.
