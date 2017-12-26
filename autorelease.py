@@ -1,7 +1,6 @@
 import json
 import shutil
 import os
-import apk
 import datetime
 from tkinter import *
 import tkinter.messagebox as msgbox
@@ -59,7 +58,7 @@ class AutoRelease:
         with open(self.cfg_file_path, 'r') as config_file:
             config_json = config_file.read()
         files = os.listdir(self.target_path)
-        configs = json.loads(config_json, object_hook=apk.Apk.json_2_obj)
+        configs = json.loads(config_json, object_hook=Apk.json_2_obj)
         # 删掉不存在的apk的配置信息
         for config in configs:
             if not files.count(config.name) and config.name != 'PluginMain.apk':
@@ -95,7 +94,7 @@ class AutoRelease:
     # 创建配置文件
     def create_config_file(self):
         list = []
-        platform_obj = self.create_platform_config('PluginMain.apk')
+        platform_obj = self.create_platform_module('PluginMain.apk')
         list.append(platform_obj)
 
         for file_name in os.listdir(self.target_path):
@@ -110,13 +109,13 @@ class AutoRelease:
     # 创建插件模块的对象并返回
     def create_plugin_module(self, file_name):
         pkg_name = self.pkg_prefix + file_name.replace('.apk', '')
-        plugin_obj = apk.Apk(file_name, '1.00', self.current_time, 'plugin', pkg_name.lower())
+        plugin_obj = Apk(file_name, '1.00', self.current_time, 'plugin', pkg_name.lower())
         return plugin_obj
 
     # 创建平台模块的对象并返回
-    def create_platform_config(self, file_name):
+    def create_platform_module(self, file_name):
         pkg_name = self.pkg_prefix + file_name.replace('.apk', '')
-        platform_obj = apk.Apk(file_name, '1.00', self.current_time, 'platform', pkg_name.lower())
+        platform_obj = Apk(file_name, '1.00', self.current_time, 'platform', pkg_name.lower())
         return platform_obj
 
 
@@ -192,6 +191,27 @@ class App:
     def click_update(self):
         self.auto.update_config()
         msgbox.showinfo('提示', '更新配置文件成功')
+
+
+class Apk:
+    def __init__(self, name, version, updateTime, type, mainActivity):
+        self.name = name
+        self.version = version
+        self.updateTime = updateTime
+        self.type = type
+        self.mainActivity = mainActivity
+
+    def obj_2_json(self):
+        return {
+            'name': self.name,
+            'version': self.version,
+            'updateTime': self.updateTime,
+            'type': self.type,
+            'mainActivity': self.mainActivity
+        }
+
+    def json_2_obj(dict):
+        return Apk(dict['name'], dict['version'], dict['updateTime'], dict['type'], dict['mainActivity'])
 
 
 if __name__ == '__main__':
